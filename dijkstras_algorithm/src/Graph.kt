@@ -54,7 +54,7 @@ class Graph(edges: List<Map<String, Any>>) {
                     // Check that this edge leads to a shorter path
                     if (matrix[getLocation(nextShortest, j)] + distances[nextShortest] < distances[j] ) {
                         distances[j] = matrix[getLocation(nextShortest, j)] + distances[nextShortest] // Update distance
-                        path[j] = nextShortest
+                        path[j] = nextShortest // Next shortest is linked to previous last shortest
                     }
                 }
             }
@@ -104,6 +104,7 @@ class Graph(edges: List<Map<String, Any>>) {
         return vertexIndex+1
     }
 
+    // Recursively finds path by piecing shortest previous paths
     fun getPath(path: ArrayList<Int>, distances: Array<Int>, end: Int) : String {
         if (path[end] == -1) {
             return idMap[end] + " => "
