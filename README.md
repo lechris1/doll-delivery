@@ -4,7 +4,7 @@ In Project Structure -> Project Settings -> Modules.
 
 Set src directory as a 'Sources' module and test directory as a 'Tests' module.
 
-Configure Kotlin settings before running Tests.
+Configure JUnit5.3 and Kotlin settings before running Tests.
 
 Add tests in GraphTest for additional testing.
 
