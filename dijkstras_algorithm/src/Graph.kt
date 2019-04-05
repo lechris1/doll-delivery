@@ -4,7 +4,8 @@ class Graph(edges: List<Map<String, Any>>) {
     val idMap : HashMap<Int, String> = hashMapOf() // map ids to locations
     var vertexIndex = -1
     val numOfVertices = countVertices(edges)
-    val matrix = Array(numOfVertices*numOfVertices) {i -> 0} // 1D matrix
+    val matrix = Array(numOfVertices*numOfVertices) {0} // 1D matrix
+    var isNonNaturalEdge = false // Don't allow for negative or zero edges
 
     // Initialize graph as adjacency matrix
     init {
@@ -18,19 +19,21 @@ class Graph(edges: List<Map<String, Any>>) {
             // Insert edge into matrix
             matrix[getLocation(row, col)] = edge["distance"] as Int
             matrix[getLocation(col, row)] = edge["distance"] as Int
+
+            if ((edge["distance"] as Int) <= 0) isNonNaturalEdge = true
         }
     }
 
     fun dijkstra(startLocation: String, endLocation: String) : Map<String, Any> {
-        if (numOfVertices == 0) {
-            return mapOf<String, Any>("distance" to 0, "path" to "")
+        if (numOfVertices == 0 || isNonNaturalEdge || startLocation !in locationMap || endLocation !in locationMap) {
+            return mapOf("distance" to 0, "path" to "")
         }
 
         var start = locationMap[startLocation] as Int
         var end = locationMap[endLocation]
-        var path = arrayListOf<Int>(*(Array(numOfVertices) {i -> -1})) // Shortest path
-        var availableNodes = arrayListOf<Int>(*(Array(numOfVertices) {i -> i})) // Available nodes
-        var distances = Array(numOfVertices) {i -> Int.MAX_VALUE} // Distances from starting node
+        var path = arrayListOf(*(Array(numOfVertices) {-1})) // Shortest path
+        var availableNodes = arrayListOf(*(Array(numOfVertices) {i -> i})) // Available nodes to add to path
+        var distances = Array(numOfVertices) {Int.MAX_VALUE} // Distances from starting node
         distances[start] = 0
 
         // Start searching
@@ -40,7 +43,7 @@ class Graph(edges: List<Map<String, Any>>) {
 
             if (nextShortest == end) {
                 var pathString = getPath(path, distances, end)
-                return mapOf<String, Any>("distance" to distances[end], "path" to pathString.substring(0, pathString.length-4))
+                return mapOf("distance" to distances[end], "path" to pathString.substring(0, pathString.length-4))
             }
 
             availableNodes.remove(nextShortest)
@@ -50,14 +53,14 @@ class Graph(edges: List<Map<String, Any>>) {
                 if (matrix[getLocation(nextShortest, j)] != 0 && j in availableNodes) {
                     // Check that this edge leads to a shorter path
                     if (matrix[getLocation(nextShortest, j)] + distances[nextShortest] < distances[j] ) {
-                        distances[j] = matrix[getLocation(nextShortest, j)] + distances[nextShortest]
+                        distances[j] = matrix[getLocation(nextShortest, j)] + distances[nextShortest] // Update distance
                         path[j] = nextShortest
                     }
                 }
             }
         }
 
-        return mapOf<String, Any>("distance" to 0, "path" to "")
+        return mapOf("distance" to 0, "path" to "")
     }
 
     fun findNextShortest(distances: Array<Int>, availableNodes: ArrayList<Int>) : Int {
